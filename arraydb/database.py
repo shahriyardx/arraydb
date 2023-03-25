@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+from dataclasses import dataclass
 from typing import Any, Dict, List
 
 from cuid import cuid
@@ -9,12 +10,30 @@ from cuid import cuid
 from .types import Row, Where
 
 
+@dataclass
+class Column:
+    """A Column"""
+
+    name: str
+    default: Any = None
+
+
 class ArrayDb:
-    def __init__(
-        self, column_names: List[str], data: List[Dict[str, Any]] = []
-    ) -> None:
+    """The database"""
+
+    def __init__(self, columns: List[Column], data: List[Dict[str, Any]] = []) -> None:
         self.data = data
-        self.column_names = list(set(column_names))
+        self.columns: List[Column] = list()
+
+        for col in columns:
+            if isinstance(col, str):
+                self.columns.append(Column(col))
+                continue
+
+            self.columns.append(col)
+
+        self.column_names = list(set([col.name for col in self.columns]))
+        self.default_values = {col.name: col.default for col in self.columns}
 
         if "_id" not in self.column_names:
             self.column_names = ["_id", *self.column_names]
@@ -28,8 +47,12 @@ class ArrayDb:
     @staticmethod
     def load(data: str) -> ArrayDb:
         database = json.loads(data)
+        columns = list()
 
-        return ArrayDb(column_names=database["column_names"], data=database["rows"])
+        for col in database["columns"]:
+            columns.append(Column(col["name"], col["default"]))
+
+        return ArrayDb(columns=columns, data=database["rows"])
 
     def __update(self, row: Row, data: dict):
         cleaned_data = self.__clean_row(data, fix_missing=False)
@@ -44,7 +67,7 @@ class ArrayDb:
         row = {"_id": cuid(), **row}
         for key in self.column_names:
             if key not in data_keys and key != "_id":
-                row[key] = None
+                row[key] = self.default_values.get(key)
                 continue
 
         return row
@@ -62,6 +85,9 @@ class ArrayDb:
 
         for key in table_columns:
             if key not in row:
+                continue
+
+            if row[key] is None:
                 continue
 
             if not isinstance(row[key], (int, str, list, dict)):
@@ -193,12 +219,21 @@ class ArrayDb:
         return self.__find(where=where, sort=sort)
 
     def serialize(self) -> str:
+        columns = list()
+
+        for column in self.columns:
+            columns.append(
+                {
+                    "name": column.name,
+                    "default": column.default,
+                }
+            )
         return json.dumps(
             {
                 "rows": self.data,
-                "column_names": self.column_names,
+                "columns": columns,
             }
         )
 
 
-__all__ = ["ArrayDb"]
+__all__ = ["ArrayDb", "Column"]

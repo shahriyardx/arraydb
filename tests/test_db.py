@@ -1,13 +1,19 @@
 from unittest import TestCase, main
 
-from arraydb import ArrayDb
+from arraydb import ArrayDb, Column
 
 
 class TestDatabase(TestCase):
     """Tests the database"""
 
     def get_test_db(self):
-        db = ArrayDb(column_names=["name", "email"], data=[])
+        db = ArrayDb(
+            columns=[
+                Column("name"),
+                Column("email"),
+            ],
+            data=[],
+        )
         db.insert({"name": "Shahriyar", "email": "contact@shahriyar.dev"})
 
         return db

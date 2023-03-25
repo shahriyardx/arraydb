@@ -1,3 +1,3 @@
-from .database import ArrayDb
+from .database import ArrayDb, Column
 
-__all__ = ["ArrayDb"]
+__all__ = ["ArrayDb", "Column"]
