@@ -1,3 +1,2 @@
 cuid==0.4
-orjson==3.8.8
 typing_extensions==4.5.0
