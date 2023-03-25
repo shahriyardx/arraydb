@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import copy
+import json
 from typing import Any, Dict, List
 
-import json
 from cuid import cuid
 
 from .types import Row, Where
@@ -161,7 +161,7 @@ class ArrayDb:
                         rows = [row for row in rows if row[column] >= value]
                     elif operator == "lte":
                         rows = [row for row in rows if row[column] <= value]
-                    elif operator == "not":
+                    elif operator in ["not", "not_"]:
                         rows = [row for row in rows if row[column] != value]
                     elif operator == "contains":
                         rows = [row for row in rows if value in row[column]]
@@ -169,7 +169,7 @@ class ArrayDb:
                         rows = [row for row in rows if row[column].startswith(value)]
                     elif operator == "endswith":
                         rows = [row for row in rows if row[column].endswith(value)]
-                    elif operator == "in":
+                    elif operator in ["in", "in_"]:
                         rows = [row for row in rows if row[column] in value]
 
         for column, order in reversed(list(sort.items())):
