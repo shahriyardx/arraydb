@@ -33,13 +33,17 @@ class TestDatabase(TestCase):
 
     def test_upadte(self):
         db = self.get_test_db()
+
+        old_data = db.find_first({"name": "Shahriyar"})
         db.update({"name": "Shahriyar"}, {"name": "Shahriyar Alam"})
 
-        assert db.find_first({"name": "Shahriyar"}) is None
-        assert (
-            db.find_first({"name": "Shahriyar Alam"}) is not None
-            and db.find_first({"name": "Shahriyar Alam"})["email"] is not None
-        )
+        not_found = db.find_first({"name": "Shahriyar"})
+        found = db.find_first({"name": "Shahriyar Alam"})
+
+        assert old_data is not None
+        assert not_found is None
+        assert found is not None
+        assert old_data["_id"] == found["_id"]
 
     def test_delete(self):
         db = self.get_test_db()
