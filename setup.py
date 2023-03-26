@@ -1,4 +1,6 @@
+from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
+
 
 from setuptools import find_packages, setup
 
@@ -8,10 +10,16 @@ with open("requirements.txt") as f:
 current_directory = Path(__file__).parent.resolve()
 long_description = (current_directory / "README.md").read_text(encoding="utf-8")
 
+package_name = "arraydb"
+
+_version_path = current_directory / package_name / "_version.py"
+_version_spec = spec_from_file_location(_version_path.name[:-3], _version_path)
+_version_module = module_from_spec(_version_spec)
+_version_spec.loader.exec_module(_version_module)
 
 setup(
-    name="arraydb",
-    version="0.1.0",
+    name=package_name,
+    version=_version_module.__version__,
     license="MIT",
     description="Database using array. With an basic ORM",
     long_description=long_description,
