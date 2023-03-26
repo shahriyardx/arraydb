@@ -17,6 +17,23 @@ class Column:
     name: str
     default: Any = None
 
+    @staticmethod
+    def get_defaults():
+        return {
+            "list": list(),
+            list: list(),
+            "dict": dict(),
+            dict: dict(),
+            "true": True,
+            True: True,
+            "false": False,
+            False: False,
+            "null": None,
+            "none": None,
+            "None": None,
+            None: None,
+        }
+
 
 class ArrayDb:
     """The database"""
@@ -29,6 +46,10 @@ class ArrayDb:
             if isinstance(col, str):
                 self.columns.append(Column(col))
                 continue
+
+            if isinstance(col, Column):
+                default = Column.get_defaults().get(col.default, None)
+                col.default = default
 
             self.columns.append(col)
 
